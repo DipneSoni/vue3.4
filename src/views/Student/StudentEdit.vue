@@ -1,46 +1,53 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
+import StudentFields from './StudentFields.vue'
 
 const route = useRoute()
 const router = useRouter()
 
 const id = ref(route.params.id)
-const name = ref('')
-const email = ref('')
-const birthdate = ref('')
+const formData = reactive({
+  name: '',
+  email: '',
+  birthdate: ''
+})
 
 onMounted(() => {
   editStudent()
 })
 const editStudent = async () => {
   axios
-    .get(`${import.meta.env.VITE_API_BASE_URL}/students/${id.value}`)
+    .get(`/api/students/${id.value}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
     .then(function (response) {
-      name.value = response.data.name
-      email.value = response.data.email
-      birthdate.value = response.data.birthdate
+      formData.name = response.data.name
+      formData.email = response.data.email
+      formData.birthdate = response.data.birthdate
     })
     .catch(function (error) {
-      alert(error)
+      Toastify({ text: error }).showToast()
     })
 }
 const updateStudent = async () => {
   axios
-    .put(`${import.meta.env.VITE_API_BASE_URL}/students/${id.value}`, {
-      name: name.value,
-      email: email.value,
-      birthdate: birthdate.value
+    .put(`/api/students/${id.value}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
     })
     .then(function (response) {
       if (response.status === 200) {
-        alert('Student updated.')
         router.push('/students')
+        Toastify({ text: 'Student updated.' })
       }
     })
     .catch(function (error) {
-      alert(error)
+      Toastify({ text: error })
     })
 }
 </script>
@@ -53,54 +60,10 @@ const updateStudent = async () => {
       </div>
       <form @submit.prevent="updateStudent">
         <div class="card-body">
-          <div class="mb-3">
-            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
-            <input
-              v-model="name"
-              type="text"
-              class="form-control"
-              id="name"
-              placeholder="Enter name"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-            <input
-              v-model="email"
-              type="email"
-              class="form-control"
-              id="email"
-              placeholder="Enter email"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="birthdate" class="form-label"
-              >Birthdate <span class="text-danger">*</span></label
-            >
-            <input
-              v-model="birthdate"
-              type="date"
-              class="form-control"
-              id="birthdate"
-              placeholder="Enter birthdate"
-              required
-            />
-          </div>
+          <StudentFields :formData="formData" />
           <div class="mb-3">
             <button type="submit" class="btn btn-primary me-2">Save</button>
-            <button
-              type="button"
-              @click="
-                () => {
-                  router.push('/students')
-                }
-              "
-              class="btn btn-secondary"
-            >
-              Cancel
-            </button>
+            <RouterLink :to="{ name: 'StudentIndex' }" class="btn btn-secondary">Cancel</RouterLink>
           </div>
         </div>
       </form>

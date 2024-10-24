@@ -13,21 +13,22 @@ export const useAuthStore = defineStore('authStore', {
     async getUser() {
       if (localStorage.getItem('token')) {
         try {
-          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user`, {
+          const res = await axios.get(`/api/user`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
           })
           this.user = res.data
         } catch (error) {
-          alert(error)
+          Toastify({text: error}).showToast()
         }
       }
     },
     /** Login & Register */
     async authenticate(apiRoute, formData) {
       try {
-        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${apiRoute}`, formData)
+        //const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${apiRoute}`, formData)
+        const res = await axios.post(`/api/${apiRoute}`, formData)
         this.errors = {}
         this.user = res.data.user
         localStorage.setItem('token', res.data.user.token)
@@ -43,7 +44,7 @@ export const useAuthStore = defineStore('authStore', {
     async logout() {
       try {
         await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/logout`,
+          `/api/logout`,
           {},
           {
             headers: {
@@ -56,18 +57,18 @@ export const useAuthStore = defineStore('authStore', {
         localStorage.removeItem('token')
         this.router.push({ name: 'home' })
       } catch (error) {
-        alert(error.message)
+        Toastify({ text: error.message }).showToast()
       }
     },
     /** it will sent email for reset paasword link */
     async sendResetLinkEmail(formData) {
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/password/email`,
+          `/api/password/email`,
           formData
         )
         this.errors = {}
-        alert(res.data.message)
+        Toastify({ text: res.data.message }).showToast()
         this.router.push({ name: 'login' })
       } catch (error) {
         if (error.response.data.errors) {
@@ -80,11 +81,11 @@ export const useAuthStore = defineStore('authStore', {
     async resetPassword(formData) {
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/password/reset`,
+          `/api/password/reset`,
           formData
         )
         this.errors = {}
-        alert(res.data.message)
+        Toastify({ text: res.data.message }).showToast()
         this.router.push({ name: 'login' })
       } catch (error) {
         if (error.response.data.errors) {

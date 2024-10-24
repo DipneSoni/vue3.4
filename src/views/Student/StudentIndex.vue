@@ -1,45 +1,82 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import dayjs from 'dayjs'
 
 const students = ref([]) // Holds the list of students
-const currentPage = ref(1) // Current page number
-const lastPage = ref(1) // Total number of pages
-const nextPageUrl = ref(null) // Holds the next page URL
-const prevPageUrl = ref(null) // Holds the previous page URL
+const pagination = ref({})
+const sortKey = ref('id')
+const sortOrder = ref('DESC')
+const search = ref('')
 
-const fetchStudents = async (page = 1) => {
+const searchBy = () => {
+  //if (search.value != '') {
+  sortKey.value = sortKey.value ?? 'id'
+  sortOrder.value = sortOrder.value ?? 'DESC'
+  fetchStudents(1, sortKey.value, sortOrder.value, search.value)
+  //}
+}
+
+const sortBy = (key) => {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === 'ASC' ? 'DESC' : 'ASC'
+  } else {
+    sortKey.value = key
+    sortOrder.value = 'DESC'
+  }
+  fetchStudents(1, sortKey.value, sortOrder.value, search.value)
+}
+
+const fetchStudents = async (page = 1, sortKey = 'id', sortOrder = 'DESC', search = '') => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/students?page=${page}`)
+    const response = await axios.get(
+      `/api/students?page=${page}&sortKey=${sortKey}&sortOrder=${sortOrder}&search=${search}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    )
     students.value = response.data.data // student data
-    currentPage.value = response.data.current_page // current page
-    lastPage.value = response.data.last_page // total pages
-    nextPageUrl.value = response.data.next_page_url // next page URL
-    prevPageUrl.value = response.data.prev_page_url // previous page URL
+    pagination.value = response.data
   } catch (err) {
     console.error('Facing error while fetching data: ' + err)
   }
 }
 // Navigate to the previous or next page
-const changePage = (page) => {
+const changePage = (url) => {
+  const page = getPageIdFromUrl(url)
   fetchStudents(page)
 }
 onMounted(() => {
   fetchStudents()
 })
-
+const getPageIdFromUrl = (url) => {
+  if (url) {
+    const urlObject = new URL(url)
+    return urlObject.searchParams.get('page')
+  }
+  return null
+}
+function formatDate(dateString) {
+  return dayjs(dateString).format('D-MM-YYYY')
+}
 const deleteStudent = (studentId) => {
   if (confirm('Are you sure you want to delete this student? This action cannot be undo.')) {
     axios
-      .delete(`${import.meta.env.VITE_API_BASE_URL}/students/${studentId}`)
+      .delete(`/api/students/${studentId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
       .then((response) => {
         if (response.status === 204) {
-          alert('Student deleted')
+          Toastify({ text: 'Student deleted.' }).showToast()
           fetchStudents()
         }
       })
       .catch((error) => {
-        alert(error)
+        Toastify({ text: error }).showToast()
       })
   }
 }
@@ -57,13 +94,29 @@ const deleteStudent = (studentId) => {
         </h4>
       </div>
       <div class="card-body">
+        <div class="row justify-content-end mb-3">
+          <div class="col-auto">
+            <div class="input-group">
+              <input
+                type="search"
+                class="form-control mx-2"
+                placeholder="Search"
+                aria-label="Search"
+                v-model="search"
+              />
+              <button class="btn btn-primary" type="button" @click="searchBy()">Search</button>
+            </div>
+          </div>
+        </div>
         <table class="table table-bordered">
           <thead>
             <tr>
-              <th>Id</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Birthdate</th>
+              <th class="text-primary" @click="sortBy('id')" style="cursor: pointer">Id</th>
+              <th class="text-primary" @click="sortBy('name')" style="cursor: pointer">Name</th>
+              <th class="text-primary" @click="sortBy('email')" style="cursor: pointer">Email</th>
+              <th class="text-primary" @click="sortBy('birthdate')" style="cursor: pointer">
+                Birthdate
+              </th>
               <th>Action</th>
             </tr>
           </thead>
@@ -72,7 +125,7 @@ const deleteStudent = (studentId) => {
               <td>{{ student.id }}</td>
               <td>{{ student.name }}</td>
               <td>{{ student.email }}</td>
-              <td>{{ student.birthdate }}</td>
+              <td>{{ formatDate(student.birthdate) }}</td>
               <td>
                 <RouterLink class="btn btn-success me-2" :to="`/students/${student.id}/edit`"
                   >Edit</RouterLink
@@ -83,38 +136,26 @@ const deleteStudent = (studentId) => {
           </tbody>
           <tbody v-else>
             <tr>
-              <td class="text-center align-middle" colspan="5">Loading...</td>
+              <td class="text-center align-middle" colspan="5">No students found.</td>
             </tr>
           </tbody>
         </table>
         <!-- Pagination Controls -->
-        <nav>
-          <ul class="pagination">
-            <li class="page-item" :class="{ disabled: !prevPageUrl }">
-              <button
-                class="page-link"
-                @click="changePage(currentPage - 1)"
-                :disabled="!prevPageUrl"
-              >
-                Previous
-              </button>
-            </li>
+        <nav aria-label="Page navigation" v-if="pagination.total > 10">
+          <ul class="pagination justify-content-center">
             <li
-              v-for="page in lastPage"
-              :key="page"
               class="page-item"
-              :class="{ active: currentPage === page }"
+              v-for="link in pagination.links"
+              :key="link.label"
+              :class="{ active: link.active, disabled: !link.url }"
             >
-              <button class="page-link" @click="changePage(page)">{{ page }}</button>
-            </li>
-            <li class="page-item" :class="{ disabled: !nextPageUrl }">
               <button
                 class="page-link"
-                @click="changePage(currentPage + 1)"
-                :disabled="!nextPageUrl"
-              >
-                Next
-              </button>
+                v-if="link.url && !link.active"
+                @click="changePage(link.url)"
+                v-html="link.label"
+              ></button>
+              <span class="page-link" v-else v-html="link.label"> </span>
             </li>
           </ul>
         </nav>

@@ -24,8 +24,7 @@ onMounted(() => {
       </div>
       <form @submit.prevent="authenticate('register', formData)">
         <div class="card-body">
-          <div class="mb-3">
-            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+          <div class="form-floating mb-3">
             <input
               v-model="formData.name"
               type="text"
@@ -34,10 +33,10 @@ onMounted(() => {
               placeholder="Enter name"
               required
             />
+            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
             <div class="text-danger" v-if="errors.name">{{ errors.name[0] }}</div>
           </div>
-          <div class="mb-3">
-            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+          <div class="form-floating mb-3">
             <input
               v-model="formData.email"
               type="email"
@@ -46,12 +45,10 @@ onMounted(() => {
               placeholder="Enter email"
               required
             />
+            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
             <div class="text-danger" v-if="errors.email">{{ errors.email[0] }}</div>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label"
-              >Password <span class="text-danger">*</span></label
-            >
+          <div class="form-floating mb-3">
             <input
               v-model="formData.password"
               type="password"
@@ -60,6 +57,7 @@ onMounted(() => {
               placeholder="Enter password"
               required
             />
+            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
             <div class="text-danger" v-if="errors.password">{{ errors.password[0] }}</div>
           </div>
           <div class="mb-3">

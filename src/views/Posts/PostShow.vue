@@ -1,6 +1,7 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
 import { usePostStore } from '@/stores/posts'
+import dayjs from 'dayjs'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 const authStore = useAuthStore()
@@ -10,29 +11,33 @@ const { getPost, deletePost } = usePostStore()
 onMounted(async () => {
   post.value = await getPost(route.params.id)
 })
+function formatDate(dateString) {
+  return dayjs(dateString).format('D-MM-YYYY')
+}
 </script>
 <template>
   <main>
     <div class="container pt-5">
-      <div v-if="post">
-        <div class="card-body pb-5">
-          <h3>{{ post.title }}</h3>
-          <p>
-            <small>Author {{ post.user.name }}</small>
+      <h2 class="mb-4">Post Detail</h2>
+      <div v-if="post" class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">{{ post.title }}</h3>
+          <p class="card-text">
+            <small class="text-secondary">Author: {{ post.user.name }}</small>
           </p>
-          <p>{{ post.body }}</p>
-          <div class="d-flex">
-            <div>
-              <RouterLink class="btn btn-secondary mx-2" :to="{ name: 'PostIndex' }"
-                >Back</RouterLink
-              >
-            </div>
-            <div class="d-flex" v-if="authStore.user && authStore.user.id === post.user_id">
-              <form @submit.prevent="deletePost(post)">
-                <button class="btn btn-danger">Delete</button>
+          <p class="card-text">
+            <small class="text-secondary">Published on: {{ formatDate(post.created_at) }}</small>
+          </p>
+          <p class="card-text">{{ post.body }}</p>
+          <div class="d-flex justify-content-between mt-4">
+            <RouterLink class="btn btn-secondary" :to="{ name: 'PostIndex' }">Back</RouterLink>
+
+            <div v-if="authStore.user && authStore.user.id === post.user_id" class="d-flex">
+              <form @submit.prevent="deletePost(post)" class="me-2">
+                <button type="submit" class="btn btn-danger">Delete</button>
               </form>
               <RouterLink
-                class="btn btn-primary mx-2"
+                class="btn btn-primary"
                 :to="{ name: 'PostUpdate', params: { id: post.id } }"
                 >Edit</RouterLink
               >
@@ -40,8 +45,9 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+
       <div v-else>
-        <h3 class="d-flex text-center justify-content-center pb-5">No post found</h3>
+        <h3 class="text-center pb-5">No post found</h3>
       </div>
     </div>
   </main>

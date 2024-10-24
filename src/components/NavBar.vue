@@ -1,6 +1,6 @@
 <script setup>
+import 'bootstrap/dist/js/bootstrap.bundle.js'
 import { useAuthStore } from '@/stores/auth'
-import { RouterLink, RouterView } from 'vue-router'
 const authStore = useAuthStore()
 </script>
 
@@ -19,20 +19,31 @@ const authStore = useAuthStore()
           <li class="nav-item">
             <RouterLink class="nav-link" :to="{ name: 'PostIndex' }">Posts</RouterLink>
           </li>
-        </ul>
-        <ul class="navbar-nav">
-          <li class="text-center" v-if="authStore.user">
-            <RouterLink class="nav-link active" :to="{ name: 'home' }"
-              >Welcome, {{ authStore.user.name }}</RouterLink
-            >
-          </li>
           <li class="nav-item" v-if="authStore.user">
             <RouterLink class="nav-link" :to="{ name: 'StudentIndex' }">Students</RouterLink>
           </li>
-          <li class="nav-item" v-if="authStore.user">
-            <form @submit.prevent="authStore.logout">
-              <button class="btn nav-link">Logout</button>
-            </form>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown" v-if="authStore.user">
+            <a
+              class="nav-link dropdown-toggle"
+              id="userDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Welcome, {{ authStore.user.name }}
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+              <li>
+                <RouterLink class="dropdown-item">Profile</RouterLink>
+              </li>
+              <li>
+                <form @submit.prevent="authStore.logout">
+                  <button type="submit" class="dropdown-item">Logout</button>
+                </form>
+              </li>
+            </ul>
           </li>
           <li class="nav-item" v-if="!authStore.user">
             <RouterLink class="nav-link" :to="{ name: 'login' }">Login</RouterLink>

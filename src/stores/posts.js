@@ -12,23 +12,22 @@ export const usePostStore = defineStore('postStore', {
     /** Create a post */
     async createPost(formData) {
       try {
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/posts`, formData, {
+        const res = await axios.post(`/api/posts`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         })
         this.router.push({ name: 'PostIndex' })
-        //console.log(res.data)
+        Toastify({ text: res.data.message }).showToast()
       } catch (errors) {
         this.errors = errors.response.data.errors
       }
     },
 
     /** Get all posts */
-    async getPosts() {
+    async getPosts(url) {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/posts`)
-        //console.log(res.data.data)
+        const res = await axios.get(`${url}`)
         return res.data.data
       } catch (errors) {
         this.errors = errors.response.data.errors
@@ -38,7 +37,7 @@ export const usePostStore = defineStore('postStore', {
     /** Get a post */
     async getPost(post) {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/posts/${post}`)
+        const res = await axios.get(`/api/posts/${post}`)
         //console.log(res.data.data)
         return res.data.data
       } catch (errors) {
@@ -52,11 +51,12 @@ export const usePostStore = defineStore('postStore', {
         if (confirm('Are you sure, to delete this post?')) {
           const authStore = useAuthStore()
           if (authStore.user.id === post.user_id) {
-            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/posts/${post.id}`, {
+            const res = await axios.delete(`/api/posts/${post.id}`, {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
               }
             })
+            Toastify({ text: res.data.message }).showToast()
           }
           this.router.push({ name: 'PostIndex' })
         }
@@ -72,12 +72,13 @@ export const usePostStore = defineStore('postStore', {
       try {
         const authStore = useAuthStore()
         if (authStore.user.id === post.user_id) {
-          await axios.put(`${import.meta.env.VITE_API_BASE_URL}/posts/${post.id}`, formData, {
+          const res = await axios.put(`/api/posts/${post.id}`, formData, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
           })
           this.router.push({ name: 'PostIndex' })
+          Toastify({ text: res.data.message }).showToast()
           //console.log(res.data)
         }
       } catch (errors) {

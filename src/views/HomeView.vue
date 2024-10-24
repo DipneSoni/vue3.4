@@ -19,12 +19,13 @@
           <div class="card h-100">
             <img src="https://picsum.photos/400/300" class="card-img-top" alt="Feature 1" />
             <div class="card-body">
-              <h5 class="card-title">Feature 1</h5>
+              <h5 class="card-title">Post Management</h5>
               <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the
-                card's content.
+                Post Management refers to the process of creating, editing, organizing, and deleting
+                posts or content, typically in a content management system (CMS) or application, to
+                maintain an up-to-date and relevant collection of information.
               </p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <RouterLink class="btn btn-primary" :to="{ name: 'PostIndex' }">Posts</RouterLink>
             </div>
           </div>
         </div>
@@ -32,12 +33,15 @@
           <div class="card h-100">
             <img src="https://picsum.photos/400/300" class="card-img-top" alt="Feature 2" />
             <div class="card-body">
-              <h5 class="card-title">Feature 2</h5>
+              <h5 class="card-title">Student Management</h5>
               <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the
-                card's content.
+                Student Management involves the systematic administration of student data, including
+                enrollment, attendance, performance tracking, and communication, to enhance the
+                educational experience.
               </p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <RouterLink class="btn btn-primary" :to="{ name: 'StudentIndex' }"
+                >Students</RouterLink
+              >
             </div>
           </div>
         </div>
@@ -45,12 +49,13 @@
           <div class="card h-100">
             <img src="https://picsum.photos/400/300" class="card-img-top" alt="Feature 3" />
             <div class="card-body">
-              <h5 class="card-title">Feature 3</h5>
+              <h5 class="card-title">Login/Register</h5>
               <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the
-                card's content.
+                Login/Register refers to the processes that allow users to securely create an
+                account or access an existing one on a platform, enabling personalized experiences
+                and data management through authentication and authorization mechanisms.
               </p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <RouterLink class="btn btn-primary" :to="{ name: 'login' }">Login</RouterLink>
             </div>
           </div>
         </div>
