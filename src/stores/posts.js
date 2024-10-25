@@ -18,7 +18,7 @@ export const usePostStore = defineStore('postStore', {
           }
         })
         this.router.push({ name: 'PostIndex' })
-        Toastify({ text: res.data.message }).showToast()
+        Swal.fire(res.data.message)
       } catch (errors) {
         this.errors = errors.response.data.errors
       }
@@ -48,7 +48,16 @@ export const usePostStore = defineStore('postStore', {
     /** Delete a post */
     async deletePost(post) {
       try {
-        if (confirm('Are you sure, to delete this post?')) {
+        const confirm = await Swal.fire({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#0B5ED7',
+          cancelButtonColor: '#BC2D3B',
+          confirmButtonText: 'Yes, delete it!'
+        })
+        if (confirm.value) {
           const authStore = useAuthStore()
           if (authStore.user.id === post.user_id) {
             const res = await axios.delete(`/api/posts/${post.id}`, {
@@ -56,14 +65,17 @@ export const usePostStore = defineStore('postStore', {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
               }
             })
-            Toastify({ text: res.data.message }).showToast()
+            Swal.fire(res.data.message)
           }
           this.router.push({ name: 'PostIndex' })
         }
         //console.log(res.data.data)
         //return res.data.data
       } catch (errors) {
-        this.errors = errors.response.data.errors
+        if (errors.response.data.errors) {
+          this.errors = errors.response.data.errors
+        }
+        Swal.fire(res)
       }
     },
 
@@ -78,7 +90,7 @@ export const usePostStore = defineStore('postStore', {
             }
           })
           this.router.push({ name: 'PostIndex' })
-          Toastify({ text: res.data.message }).showToast()
+          Swal.fire(res.data.message)
           //console.log(res.data)
         }
       } catch (errors) {

@@ -1,7 +1,7 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
 import { usePostStore } from '@/stores/posts'
-import dayjs from 'dayjs'
+import { formatDate } from '@/utils'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 const authStore = useAuthStore()
@@ -11,9 +11,6 @@ const { getPost, deletePost } = usePostStore()
 onMounted(async () => {
   post.value = await getPost(route.params.id)
 })
-function formatDate(dateString) {
-  return dayjs(dateString).format('D-MM-YYYY')
-}
 </script>
 <template>
   <main>

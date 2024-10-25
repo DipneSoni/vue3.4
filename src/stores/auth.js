@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('authStore', {
           })
           this.user = res.data
         } catch (error) {
-          Toastify({ text: error }).showToast()
+          Swal.fire(error)
         }
       }
     },
@@ -53,7 +53,7 @@ export const useAuthStore = defineStore('authStore', {
         this.user = res.data.user
         //alert()
         this.router.push({ name: 'home' })
-        Toastify({ text: res.data.message }).showToast()
+        Swal.fire(res.data.message)
       } catch (error) {
         if (error.response.data.errors) {
           this.errors = error.response.data.errors
@@ -70,7 +70,7 @@ export const useAuthStore = defineStore('authStore', {
         })
         this.errors = {}
         this.router.push({ name: 'home' })
-        Toastify({ text: res.data.message }).showToast()
+        Swal.fire(res.data.message)
       } catch (error) {
         if (error.response.data.errors) {
           this.errors = error.response.data.errors
@@ -94,7 +94,7 @@ export const useAuthStore = defineStore('authStore', {
         localStorage.removeItem('token')
         this.router.push({ name: 'home' })
       } catch (error) {
-        Toastify({ text: error.message }).showToast()
+        Swal.fire(error.message)
       }
     },
     /** it will sent email for reset paasword link */
@@ -102,7 +102,7 @@ export const useAuthStore = defineStore('authStore', {
       try {
         const res = await axios.post(`/api/password/email`, formData)
         this.errors = {}
-        Toastify({ text: res.data.message }).showToast()
+        Swal.fire(res.data.message)
         this.router.push({ name: 'login' })
       } catch (error) {
         if (error.response.data.errors) {
@@ -116,7 +116,7 @@ export const useAuthStore = defineStore('authStore', {
       try {
         const res = await axios.post(`/api/password/reset`, formData)
         this.errors = {}
-        Toastify({ text: res.data.message }).showToast()
+        Swal.fire(res.data.message)
         this.router.push({ name: 'login' })
       } catch (error) {
         if (error.response.data.errors) {

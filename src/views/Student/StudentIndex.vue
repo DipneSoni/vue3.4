@@ -1,85 +1,97 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-import dayjs from 'dayjs'
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import { formatDate } from "@/utils.js";
 
-const students = ref([]) // Holds the list of students
-const pagination = ref({})
-const sortKey = ref('id')
-const sortOrder = ref('DESC')
-const search = ref('')
+const students = ref([]); // Holds the list of students
+const pagination = ref({});
+const sortKey = ref("id");
+const sortOrder = ref("DESC");
+const search = ref("");
 
 const searchBy = () => {
   //if (search.value != '') {
-  sortKey.value = sortKey.value ?? 'id'
-  sortOrder.value = sortOrder.value ?? 'DESC'
-  fetchStudents(1, sortKey.value, sortOrder.value, search.value)
+  sortKey.value = sortKey.value ?? "id";
+  sortOrder.value = sortOrder.value ?? "DESC";
+  fetchStudents(1, sortKey.value, sortOrder.value, search.value);
   //}
-}
+};
 
 const sortBy = (key) => {
   if (sortKey.value === key) {
-    sortOrder.value = sortOrder.value === 'ASC' ? 'DESC' : 'ASC'
+    sortOrder.value = sortOrder.value === "ASC" ? "DESC" : "ASC";
   } else {
-    sortKey.value = key
-    sortOrder.value = 'DESC'
+    sortKey.value = key;
+    sortOrder.value = "DESC";
   }
-  fetchStudents(1, sortKey.value, sortOrder.value, search.value)
-}
+  fetchStudents(1, sortKey.value, sortOrder.value, search.value);
+};
 
-const fetchStudents = async (page = 1, sortKey = 'id', sortOrder = 'DESC', search = '') => {
+const fetchStudents = async (
+  page = 1,
+  sortKey = "id",
+  sortOrder = "DESC",
+  search = ""
+) => {
   try {
     const response = await axios.get(
       `/api/students?page=${page}&sortKey=${sortKey}&sortOrder=${sortOrder}&search=${search}`,
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
-    )
-    students.value = response.data.data // student data
-    pagination.value = response.data
+    );
+    students.value = response.data.data; // student data
+    pagination.value = response.data;
   } catch (err) {
-    console.error('Facing error while fetching data: ' + err)
+    console.error("Facing error while fetching data: " + err);
   }
-}
+};
 // Navigate to the previous or next page
 const changePage = (url) => {
-  const page = getPageIdFromUrl(url)
-  fetchStudents(page)
-}
+  const page = getPageIdFromUrl(url);
+  fetchStudents(page);
+};
 onMounted(() => {
-  fetchStudents()
-})
+  fetchStudents();
+});
 const getPageIdFromUrl = (url) => {
   if (url) {
-    const urlObject = new URL(url)
-    return urlObject.searchParams.get('page')
+    const urlObject = new URL(url);
+    return urlObject.searchParams.get("page");
   }
-  return null
-}
-function formatDate(dateString) {
-  return dayjs(dateString).format('D-MM-YYYY')
-}
-const deleteStudent = (studentId) => {
-  if (confirm('Are you sure you want to delete this student? This action cannot be undo.')) {
+  return null;
+};
+
+const deleteStudent = async (studentId) => {
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#0B5ED7",
+    cancelButtonColor: "#BC2D3B",
+    confirmButtonText: "Yes, delete it!",
+  });
+  if (confirm.value) {
     axios
       .delete(`/api/students/${studentId}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       })
       .then((response) => {
         if (response.status === 204) {
-          Toastify({ text: 'Student deleted.' }).showToast()
-          fetchStudents()
+          Swal.fire("Student deleted.");
+          fetchStudents();
         }
       })
       .catch((error) => {
-        Toastify({ text: error }).showToast()
-      })
+        Swal.fire(error);
+      });
   }
-}
+};
 </script>
 
 <template>
@@ -104,17 +116,29 @@ const deleteStudent = (studentId) => {
                 aria-label="Search"
                 v-model="search"
               />
-              <button class="btn btn-primary" type="button" @click="searchBy()">Search</button>
+              <button class="btn btn-primary" type="button" @click="searchBy()">
+                Search
+              </button>
             </div>
           </div>
         </div>
         <table class="table table-bordered">
           <thead>
             <tr>
-              <th class="text-primary" @click="sortBy('id')" style="cursor: pointer">Id</th>
-              <th class="text-primary" @click="sortBy('name')" style="cursor: pointer">Name</th>
-              <th class="text-primary" @click="sortBy('email')" style="cursor: pointer">Email</th>
-              <th class="text-primary" @click="sortBy('birthdate')" style="cursor: pointer">
+              <th class="text-primary" @click="sortBy('id')" style="cursor: pointer">
+                Id
+              </th>
+              <th class="text-primary" @click="sortBy('name')" style="cursor: pointer">
+                Name
+              </th>
+              <th class="text-primary" @click="sortBy('email')" style="cursor: pointer">
+                Email
+              </th>
+              <th
+                class="text-primary"
+                @click="sortBy('birthdate')"
+                style="cursor: pointer"
+              >
                 Birthdate
               </th>
               <th>Action</th>
@@ -127,10 +151,14 @@ const deleteStudent = (studentId) => {
               <td>{{ student.email }}</td>
               <td>{{ formatDate(student.birthdate) }}</td>
               <td>
-                <RouterLink class="btn btn-success me-2" :to="`/students/${student.id}/edit`"
+                <RouterLink
+                  class="btn btn-success me-2"
+                  :to="`/students/${student.id}/edit`"
                   >Edit</RouterLink
                 >
-                <button class="btn btn-danger" @click="deleteStudent(student.id)">Delete</button>
+                <button class="btn btn-danger" @click="deleteStudent(student.id)">
+                  Delete
+                </button>
               </td>
             </tr>
           </tbody>

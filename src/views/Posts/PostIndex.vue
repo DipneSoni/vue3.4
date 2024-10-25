@@ -2,8 +2,7 @@
 import { usePostStore } from '@/stores/posts'
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import dayjs from 'dayjs'
-
+import { formatDate } from '@/utils.js'
 const posts = ref([])
 const pagination = ref({})
 const postStore = usePostStore()
@@ -24,11 +23,8 @@ const searchBy = () => {
 onMounted(async () => {
   getPosts()
 })
-function formatDate(dateString) {
-  return dayjs(dateString).format('D-MM-YYYY')
-}
 const truncatedBody = (body) => {
-  return body.length > 100 ? body.substring(0, 100) + '...' : body
+  return body.length > 30 ? body.substring(0, 30) + '...' : body
 }
 </script>
 <template>

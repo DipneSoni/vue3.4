@@ -30,7 +30,7 @@ const editStudent = async () => {
       formData.birthdate = response.data.birthdate
     })
     .catch(function (error) {
-      Toastify({ text: error }).showToast()
+      Swal.fire(error)
     })
 }
 const updateStudent = async () => {
@@ -43,11 +43,11 @@ const updateStudent = async () => {
     .then(function (response) {
       if (response.status === 200) {
         router.push('/students')
-        Toastify({ text: 'Student updated.' })
+        Swal.fire('Student updated.')
       }
     })
     .catch(function (error) {
-      Toastify({ text: error })
+      Swal.fire(error)
     })
 }
 </script>

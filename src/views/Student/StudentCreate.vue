@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import StudentFields from './StudentFields.vue'
 import StudentIndex from './StudentIndex.vue'
+import Swal from 'sweetalert2'
 const formData = reactive({
   name: '',
   email: '',
@@ -19,12 +20,12 @@ const addStudent = async () => {
     })
     .then(function (response) {
       if (response.status === 201) {
-        Toastify({ text: 'Student saved.' }).showToast()
+        Swal.fire('Student saved.')
         router.push('/students')
       }
     })
     .catch(function (error) {
-      Toastify({ text: error }).showToast()
+      Swal.fire(error)
     })
 }
 </script>
