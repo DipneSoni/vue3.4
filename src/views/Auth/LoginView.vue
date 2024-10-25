@@ -5,7 +5,6 @@ import { storeToRefs } from 'pinia'
 
 const { errors } = storeToRefs(useAuthStore())
 const { authenticate } = useAuthStore()
-const { navigateToHome } = useAuthStore()
 const formData = reactive({
   email: '',
   password: ''
@@ -44,14 +43,14 @@ onMounted(() => {
               placeholder="Enter password"
               required
             />
-            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+            <label for="password" class="form-label"
+              >Password <span class="text-danger">*</span></label
+            >
             <div class="text-danger" v-if="errors.password">{{ errors.password[0] }}</div>
           </div>
           <div class="mb-3">
             <button type="submit" class="btn btn-primary me-2">Login</button>
-            <button type="button" @click="navigateToHome()" class="btn btn-secondary">
-              Cancel
-            </button>
+            <RouterLink class="btn btn-secondary" :to="{ name: 'home' }">Cancel</RouterLink>
             <RouterLink class="m-lg-2" :to="{ name: 'register' }">New?</RouterLink>
             <RouterLink class="m-lg-2" :to="{ name: 'ForgotPassword' }"
               >Forgot password?</RouterLink

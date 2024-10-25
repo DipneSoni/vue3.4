@@ -36,7 +36,10 @@ const authStore = useAuthStore()
             </a>
             <ul class="dropdown-menu" aria-labelledby="userDropdown">
               <li>
-                <RouterLink class="dropdown-item">Profile</RouterLink>
+                <RouterLink class="dropdown-item" :to="{ name: 'profile' }">Profile</RouterLink>
+              </li>
+              <li>
+                <RouterLink class="dropdown-item" :to="{ name: 'changePassword' }">Change Password</RouterLink>
               </li>
               <li>
                 <form @submit.prevent="authStore.logout">
